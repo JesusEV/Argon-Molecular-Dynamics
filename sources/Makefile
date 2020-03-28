@@ -29,15 +29,11 @@ $(IO_OBJ): $(IO_SRC) $(UTILS_OBJ) $(PHYSICS_OBJ)
 $(PHYSICS_OBJ): $(PHYSICS_SRC) $(UTILS_OBJ)  
 	$(FC) -c $< -o $@ $(CFLAGS)
 
-
 $(UTILS_OBJ): $(UTILS_SRC) 
 	$(FC) -c $< -o $@ $(CFLAGS)
 
 
 .PHONY: clean
-
-run: default
-	./${EXE}
 
 clean:
 	rm -f $(EXE) *.o *.mod *.png *.dat *.6  *~
