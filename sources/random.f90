@@ -1,4 +1,7 @@
 MODULE random
+
+    USE physconst
+    
     IMPLICIT NONE
 
     INTEGER :: seed
@@ -7,7 +10,7 @@ MODULE random
 
 !---------------------------------------------------
 
-    REAL(8) FUNCTION Maxwell_Boltzmann_Dist(T, m, kb) RESULT(res)
+    SUBROUTINE MaxBoltzDist_vel_init(T, m, kb) RESULT(res)
         REAL(8), INTENT(in) :: T, m, kb
         REAL(8) :: sigma
         REAL(8) :: mu = 0.0
@@ -21,7 +24,20 @@ MODULE random
 
         res = SQRT(vx*vx + vy*vy + vz*vz)
 
-    END FUNCTION Maxwell_Boltzmann_Dist
+    SUBROUTINE MaxBoltzDist_vel_Init
+
+
+    REAL(4) FUNCTION std(arr) RESULT(res)
+        REAL(4), DIMENSION(:), INTENT(IN) :: arr
+        REAL(4), DIMENSION(:), ALLOCATABLE :: aux
+        REAL(4) :: vmean
+        ALLOCATE(aux(SIZE(arr,1)))
+        vmean = mean(arr)
+        aux = vmean
+        aux = (aux - arr)**2
+        res = SQRT(mean(aux))
+        DEALLOCATE(aux)
+    END FUNCTION std
 
 
 !---------------------------------------------------

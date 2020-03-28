@@ -27,7 +27,13 @@ PROGRAM MD
        vx(natoms),vy(natoms),vz(natoms), &
        fx(natoms),fy(natoms),fz(natoms))
 
-  ! read restart 
+!-----------------------------------------------
+  ! CALL MaxBoltz_Dist_vel_init
+  ! CAll lattice_positions_init
+! -----------------------------------------------
+
+!-----------------------------------------------
+  !read restart 
   OPEN(UNIT=33, FILE=restfile, FORM='FORMATTED', STATUS='OLD')
   DO i=1,natoms
      READ(33,*) rx(i), ry(i), rz(i)
@@ -36,6 +42,17 @@ PROGRAM MD
      READ(33,*) vx(i), vy(i), vz(i)
   END DO
   CLOSE(33)
+
+  ! DO i=1, natoms
+  !     WRITE(stdout, *) vx(i), vy(i), vz(i)
+  ! END DO
+  ! WRITE(stdout, *) '-----------------------------'
+  ! DO i=1, natoms
+  !     WRITE(stdout, *) rx(i), ry(i), rz(i)
+  ! END DO
+  ! WRITE(stdout, *) '-----------------------------'
+! -----------------------------------------------
+
 
   CALL azzero(fx,natoms)
   CALL azzero(fy,natoms)

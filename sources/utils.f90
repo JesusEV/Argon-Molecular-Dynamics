@@ -11,9 +11,10 @@ END MODULE kinds
 MODULE utils
   USE kinds
   IMPLICIT NONE
+  REAL(kind=dbl), PARAMETER :: pi = 3.14159265359_dbl   ! pi
 
   PRIVATE
-  PUBLIC :: azzero, pbc
+  PUBLIC :: azzero, pbc, box_muller_method, pi
 
 CONTAINS
 ! helper function: zero out an array 
@@ -34,16 +35,21 @@ CONTAINS
 
     pbc = x - box*(ANINT(x/box))
   END FUNCTION pbc
-END MODULE utils
 
-! module to hold the complete system information 
-MODULE mdsys
-  USE kinds
-  IMPLICIT NONE
-  INTEGER :: natoms,nfi,nsteps
-  REAL(kind=dbl) dt, mass, epsilon, sigma, box, rcut
-  REAL(kind=dbl) ekin, epot, temp
-  REAL(kind=dbl), POINTER, DIMENSION (:) :: rx, ry, rz
-  REAL(kind=dbl), POINTER, DIMENSION (:) :: vx, vy, vz
-  REAL(kind=dbl), POINTER, DIMENSION (:) :: fx, fy, fz
-END MODULE mdsys
+
+  REAL(8) FUNCTION box_muller_method(sigma, mu) RESULT(res)
+      REAL(kind=dbl), INTENT(in) :: sigma, mu
+      REAL(kind=dbl) :: R, thetha
+      REAL(kind=dbl) :: u, up
+
+      u = RAND()
+      up = RAND()
+
+      R = SQRT(-2*sigma**2 * LOG(1-u))
+      thetha = 2*pi*up
+
+      res = R*SIN(thetha) + mu
+  END FUNCTION box_muller_method
+
+
+END MODULE utils
