@@ -8,7 +8,7 @@ PROGRAM MD
   
     INTEGER :: nprint, i
     CHARACTER(len=sln) :: trajfile = './results/positions.dat'
-    CHARACTER(len=sln) :: ergfile = './results/ergies.dat'
+    CHARACTER(len=sln) :: ergfile = './results/energies.dat'
 
     READ(stdin,*) natoms
     READ(stdin,*) mass
