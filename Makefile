@@ -23,6 +23,9 @@ $(EXE):
 run: default
 	$(EXE) < $(INPUT)
 
+analyze:
+	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
+
 parsing:
 	$(PARSING_SCRIPT)
 
@@ -32,5 +35,5 @@ clean:
 
 flush: clean
 	rm -f $(RESULTS_DIR)/*.dat
-	rm -f $(DATA_ANA_DIR)/*.dat
+	rm -f $(DATA_ANA_DIR)/*.dat $(DATA_ANA_DIR)/*.pdf
 
