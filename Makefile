@@ -25,7 +25,7 @@ run: default
 	$(EXE) < $(INPUT)
 
 analyze:
-# 	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
+	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
 	python $(ANLYSIS_SCRIPT)
 
 parsing:

@@ -10,13 +10,13 @@ m =10
 L = 34.1580
 nsteps = 10000
 V = L**3
-rho = N/L
+rho = N/V
 sigma = 3.4
 radii = np.linspace(0,20,100, endpoint=True)
 file_dists = './data_analysis/distances.dat'
 file_temps = './data_analysis/temps.dat'
-rdf_fig = './documents/rdf.pdf'
-temps_fig = './documents/temps.pdf'
+rdf_fig = './documents/rdf.jpg'
+temps_fig = './documents/temps.jpg'
 
 distances =  np.genfromtxt(file_dists, delimiter=" ", usecols=range(0,1), unpack=False)
 temp_series =  np.genfromtxt(file_temps, delimiter=" ", usecols=range(0,1), unpack=False)
@@ -26,7 +26,7 @@ histogram_distances = np.histogram(distances,radii, density=False)[0]
 
 dr = radii[1]
 rdf = histogram_distances
-rdf = rdf/rho
+rdf = rdf/(N*rho)
 
 for i, r in enumerate(radii[1:]):
     dr = radii[i+1] - radii[i]
@@ -42,7 +42,7 @@ local_max
 
 
 plt.title('Radial Distribution Functions')
-plt.plot(radii[1:]/sigma, rdf, label='Temp={T}')
+plt.plot(radii[1:]/sigma, rdf, label='g(r)')
 for i in local_max:
     x=radii[1:][i]/sigma
     y=rdf[i]
@@ -50,16 +50,20 @@ for i in local_max:
     plt.annotate(r'{x} $\AA$'.format(x=round(x*3.4,1)), (x, y))
 plt.grid(True)
 plt.legend()
-plt.xlabel('r')
-plt.ylabel('RDF(r)')
+plt.xlabel(r'$r/\sigma$')
+plt.ylabel('g(r)')
 plt.xlim(0,4)
 plt.savefig(rdf_fig)
 plt.show()
 
-
-plt.plot(np.arange(nsteps)[5100:5400], temp_series[5100:5400])
+start=5000
+l=400
+plt.plot(np.arange(l)*5 , temp_series[start:start+l], label='Temperature')
+plt.xlabel('time (fs)')
+plt.ylabel('Temperature (K)')
 plt.ylim(90,100)
 plt.savefig(temps_fig)
+plt.grid(True)
 plt.show()
 
 
