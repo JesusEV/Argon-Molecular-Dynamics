@@ -13,6 +13,7 @@ DATA_ANA_DIR = $(CUR_DIR)/data_analysis
 EXE=$(EXE_DIR)/md.x
 INPUT=$(EXE_DIR)/input.in
 PARSING_SCRIPT=$(SCRIPTS_DIR)/parsing.sh
+ANLYSIS_SCRIPT=$(DATA_ANA_DIR)/Ar_MD_data_analysis.py
 
 default: $(EXE)
 
@@ -24,7 +25,8 @@ run: default
 	$(EXE) < $(INPUT)
 
 analyze:
-	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
+# 	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
+	python $(ANLYSIS_SCRIPT)
 
 parsing:
 	$(PARSING_SCRIPT)
