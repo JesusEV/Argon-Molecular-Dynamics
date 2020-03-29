@@ -3,9 +3,9 @@
 0.2379                      # epsilon in kcal/mol
 3.405                       # sigma in angstrom
 8.5                         # rcut in angstrom
-34.1580                     # box length (in angstrom)
+34.7786                     # box length (in angstrom)
 10000                       # nr MD steps
 5.0                         # MD time step (in fs)
 100                         # output print frequency
-90                          # reservoir temperature
+94.4                        # reservoir temperature
 10                          # thermo update rate
