@@ -1,3 +1,11 @@
+!------------------------------------------------------------------------------
+!        MODULE Physical Constants`
+!------------------------------------------------------------------------------
+! MODULE        : physconst
+!
+! DESCRIPTION:
+!> This module holds the needed physical constants used in the simulation.
+!------------------------------------------------------------------------------
 MODULE physconst
     USE kinds
     IMPLICIT NONE
@@ -9,7 +17,18 @@ MODULE physconst
 END MODULE physconst
 
 
-! module to hold the complete system information 
+
+
+
+
+!------------------------------------------------------------------------------
+!        MODULE Molecular Dynamics System`
+!------------------------------------------------------------------------------
+! MODULE        : mdsys
+!
+! DESCRIPTION:
+!> This module holds the complete system information.
+!------------------------------------------------------------------------------
 MODULE mdsys
     USE kinds
     IMPLICIT NONE
@@ -25,6 +44,17 @@ MODULE mdsys
 END MODULE mdsys
 
 
+
+
+
+!------------------------------------------------------------------------------
+!        MODULE Physics`
+!------------------------------------------------------------------------------
+! MODULE        : physics
+!
+! DESCRIPTION:
+!> This module contains all physically-related routines.
+!------------------------------------------------------------------------------
 MODULE physics
 
     USE utils
@@ -36,21 +66,35 @@ MODULE physics
 
     CONTAINS
 
-    ! compute kinetic energy
+!---------------------------------------------------------------------------
+!> Get kinetic energy routine. Computes total kinetic energy of the system.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE getekin
         INTEGER :: i
-
         ekin = 0.0_dbl
         DO i=1, natoms
             ekin = ekin + 0.5_dbl * mvsq2e * mass * (vx(i)*vx(i) + vy(i)*vy(i) + vz(i)*vz(i))
         END DO
     END SUBROUTINE getekin
 
+
+
+!---------------------------------------------------------------------------
+!> Get temperature routine. Computes the temperature of the system.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE gettemp
         temp = 2.0_dbl * ekin/(3.0_dbl*DBLE(natoms-1))/kboltz
         temp_series(MD_step) = temp
     END SUBROUTINE gettemp
 
+
+
+!---------------------------------------------------------------------------
+!> Force routine. Computes the temperature of the system.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE force
         REAL(kind=dbl) :: r_sq, ffac, dx, dy, dz
         REAL(kind=dbl) :: rcutsq, r6, c6, c12, rinv
@@ -66,8 +110,6 @@ MODULE physics
         DO i=1, natoms-1
              DO j=i+1, natoms
                     
-                ! get distance between particle i and j 
-                !        delta = delta - box*(ANINT(delta/box))
                 dx=pbc(rx(i) - rx(j), box)
                 dy=pbc(ry(i) - ry(j), box)
                 dz=pbc(rz(i) - rz(j), box)
@@ -93,6 +135,11 @@ MODULE physics
     END SUBROUTINE force
 
 
+
+!---------------------------------------------------------------------------
+!> Velocity Verlet routine. Updates velocities and positions via Verlet Alg.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE velverlet
         INTEGER :: i
 
@@ -117,6 +164,12 @@ MODULE physics
         END DO
     END SUBROUTINE velverlet
 
+
+
+!---------------------------------------------------------------------------
+!> Poors-man Thermostat routine. Rescales temperature of the system.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE thermostat
         USE kinds
         USE mdsys
@@ -132,6 +185,13 @@ MODULE physics
         END DO
     END SUBROUTINE thermostat
 
+
+
+!---------------------------------------------------------------------------
+!> Maxwell Bolzmann velocity initializator. Initialize velocities according
+!> to MB velocity distribution at a given temperature.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE MaxBoltz_Dist_vel_init
         INTEGER :: i
 
@@ -142,6 +202,13 @@ MODULE physics
         END DO
     END SUBROUTINE MaxBoltz_Dist_vel_Init
 
+
+
+!---------------------------------------------------------------------------
+!> FCC lattice positions iniatializator. Initialize positions in a FCC 
+!> lattice.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE fcc_lattice_positions_init
         INTEGER :: i,j,k
         INTEGER :: lattice_size, cells_num, cbrt_cells, cell_idx = 1
@@ -176,6 +243,12 @@ MODULE physics
         END DO
     END SUBROUTINE fcc_lattice_positions_Init
 
+
+
+!---------------------------------------------------------------------------
+!> Force to Zero routine. Resets Force values.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE force_to_zero
     INTEGER :: i
 
@@ -187,6 +260,11 @@ MODULE physics
     END SUBROUTINE force_to_zero
 
 
+!---------------------------------------------------------------------------
+!> Get distances routine. Computes distances between the particles in the
+!> system.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     SUBROUTINE get_distances
         INTEGER :: i,j,k
         REAL(kind=dbl) :: dx, dy, dz
@@ -203,69 +281,7 @@ MODULE physics
         END DO
     END SUBROUTINE get_distances
 
-    ! SUBROUTINE get_distances
-    !     INTEGER :: i,j,k
-    !     REAL(kind=dbl) :: dx, dy, dz
-
-    !     k=1
-    !     DO i=1, natoms-1
-    !          DO j=i+1, natoms
-    !             dx=pbc(rx(i) - rx(j), box)
-    !             dy=pbc(ry(i) - ry(j), box)
-    !             dz=pbc(rz(i) - rz(j), box)
-    !             dists(k) = SQRT(dx*dx + dy*dy + dz*dz)
-    !             k = k +1
-    !          END DO
-    !     END DO
-    ! END SUBROUTINE get_distances
-
 END MODULE physics
-
-
-
-
-
-
-
-
-    ! ! compute forces 
-    ! velocity verlet
-    ! SUBROUTINE force
-    !     REAL(kind=dbl) :: r, ffac, dx, dy, dz
-    !     INTEGER :: i, j
-
-    !     epot=0.0_dbl
-    !     CALL force_to_zero
-
-    !     DO i=1, natoms-1
-    !          DO j=i+1, natoms
-                    
-    !             ! get distance between particle i and j 
-    !             !        delta = delta - box*(ANINT(delta/box))
-    !             dx=pbc(rx(i) - rx(j), box)
-    !             dy=pbc(ry(i) - ry(j), box)
-    !             dz=pbc(rz(i) - rz(j), box)
-    !             r = SQRT(dx*dx + dy*dy + dz*dz)
-
-    !             ! compute force and energy if within cutoff */
-    !             IF (r < rcut) THEN
-    !                     ffac = -4.0_dbl*epsilon*(-12.0_dbl*((sigma/r)**12)/r   &
-    !                         +6.0_dbl*(sigma/r)**6/r)
-                            
-    !                     epot = epot + 0.5_dbl*4.0_dbl*epsilon*((sigma/r)**12 &
-    !                         -(sigma/r)**6.0)
-
-    !                     fx(i) = fx(i) + dx/r*ffac
-    !                     fy(i) = fy(i) + dy/r*ffac
-    !                     fz(i) = fz(i) + dz/r*ffac
-
-    !                     fx(j) = fx(j) - dx/r*ffac
-    !                     fy(j) = fy(j) - dy/r*ffac
-    !                     fz(j) = fz(j) - dz/r*ffac
-    !             END IF
-    !          END DO
-    !     END DO
-    ! END SUBROUTINE force
 
 
 

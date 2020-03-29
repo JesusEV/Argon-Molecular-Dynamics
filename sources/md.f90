@@ -1,3 +1,12 @@
+!------------------------------------------------------------------------------
+!        PROGRAM Molecular Dynamics of Argon`
+!------------------------------------------------------------------------------
+! Program        : MD
+!
+! DESCRIPTION:
+!> This program simulates Argon gas subject to the Lennard-Jones potential 
+!> in a box .
+!------------------------------------------------------------------------------
 PROGRAM MD
     USE kinds
     USE io
@@ -5,7 +14,11 @@ PROGRAM MD
     USE mdsys
     USE physics
     IMPLICIT NONE
-  
+
+
+!------------------------------------------------------------------------------
+! Reading and Initialization of simulation parameters.  
+!------------------------------------------------------------------------------  
     INTEGER :: nprint, i
     CHARACTER(len=sln) :: trajfile = './results/positions.dat'
     CHARACTER(len=sln) :: ergfile = './results/energies.dat'
@@ -26,26 +39,39 @@ PROGRAM MD
     pair_num = (natoms*(natoms - 1)-(natoms-tracking_size)*(natoms -tracking_size- 1))/2
 
 
-    ! allocate storage for simulation data.
+!------------------------------------------------------------------------------
+! Allocation of storage for simulation data.
+!------------------------------------------------------------------------------  
     ALLOCATE(rx(natoms),ry(natoms),rz(natoms),&
              vx(natoms),vy(natoms),vz(natoms), &
              fx(natoms),fy(natoms),fz(natoms),&
              dists(pair_num),temp_series(nsteps))
 
-!-----------------------------------------------
+
+!------------------------------------------------------------------------------
+! Initialization of Positions, velocities and Forces.
+!------------------------------------------------------------------------------  
     CAll fcc_lattice_positions_init
     CALL MaxBoltz_Dist_vel_init
     CALL force_to_zero
 
+
+!------------------------------------------------------------------------------
+! Files Openning.
+!------------------------------------------------------------------------------  
     CALL ioopen(ergfile, trajfile, distfile, tempsfile)
 
+
+
+!------------------------------------------------------------------------------
+! Molecular Dyanamic Main loop.
+!------------------------------------------------------------------------------  
     WRITE(stdout, *) 'Starting simulation with ', natoms, ' atoms for', nsteps, ' steps'
     WRITE(stdout, *) '    MD_step           TEMP                 EKIN                  EPOT&
        &                ETOT'
-    ! main MD loop 
     DO MD_step=1, nsteps
 
-                ! propagate system and recompute energies
+        ! propagate system and recompute energies
         CALL velverlet
         CALL getekin
         CALL gettemp
@@ -59,10 +85,14 @@ PROGRAM MD
         END IF
     END DO
 
-    ! clean up: close files, free memory
     CALL output_temps
+
+
+!------------------------------------------------------------------------------
+! clean up: close files, free memory
+!------------------------------------------------------------------------------  
     WRITE(stdout,'(A)') 'Simulation Done.'
     CALL ioclose
-
     DEALLOCATE(rx,ry,rz,vx,vy,vz,fx,fy,fz,dists,temp_series)
+
 END PROGRAM MD

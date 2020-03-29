@@ -1,3 +1,12 @@
+!------------------------------------------------------------------------------
+!        MODULE High precision kinds
+!------------------------------------------------------------------------------
+! MODULE        : kinds
+!
+! DESCRIPTION:
+!> This module contains redefinitions for precision of floating point number
+!> and length file size names.
+!------------------------------------------------------------------------------
 MODULE kinds
     IMPLICIT NONE
     INTEGER, PARAMETER :: dbl = selected_real_kind(14,200)  ! double precision floating point
@@ -8,6 +17,16 @@ MODULE kinds
 END MODULE kinds
 
 
+
+
+!------------------------------------------------------------------------------
+!        MODULE Utilities
+!------------------------------------------------------------------------------
+! MODULE        : utils
+!
+! DESCRIPTION:
+!> This module contains helper and miscellaneous routines.
+!------------------------------------------------------------------------------
 MODULE utils
     USE kinds
     IMPLICIT NONE
@@ -17,8 +36,11 @@ MODULE utils
     PUBLIC :: pbc, box_muller_method, pi
 
     CONTAINS
-    
-    ! helper function: apply minimum image convention 
+
+!---------------------------------------------------------------------------
+!> pbc routine: applies minimum image convention.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     FUNCTION pbc(x, box)
         REAL(kind=dbl), INTENT(IN)  :: x, box
         REAL(kind=dbl) :: pbc
@@ -26,6 +48,11 @@ MODULE utils
     END FUNCTION pbc
 
 
+
+!---------------------------------------------------------------------------
+!> Box-Muller Method: Generates Gaussian random numbers.
+!> @param[in] casefilename
+!---------------------------------------------------------------------------
     REAL(8) FUNCTION box_muller_method(sigma, mu) RESULT(res)
         REAL(kind=dbl), INTENT(in) :: sigma, mu
         REAL(kind=dbl) :: R, thetha
