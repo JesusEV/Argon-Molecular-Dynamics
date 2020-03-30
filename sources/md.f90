@@ -68,9 +68,7 @@ PROGRAM MD
 !------------------------------------------------------------------------------
 ! Molecular Dyanamic Main loop.
 !------------------------------------------------------------------------------  
-    WRITE(stdout, *) 'Starting simulation with ', natoms, ' atoms for', nsteps, ' steps'
-    WRITE(stdout, *) '    MD_step           TEMP                 EKIN                  EPOT&
-       &                ETOT'
+    WRITE(stdout, *) 'MD_step'
     DO MD_step=1, nsteps
 
         ! propagate system and recompute energies

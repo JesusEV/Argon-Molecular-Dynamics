@@ -58,8 +58,7 @@ MODULE io
         INTEGER :: i
         character(len=23) :: str
 
-        WRITE(stdout, '(I8,1X,F20.8,1X,F20.8,1X,F20.8,1X,F20.8)') &
-             MD_step, temp, ekin, epot, ekin+epot
+        WRITE(stdout, '(I8)') MD_step
 
 
         WRITE(ene, '(F015.8)') ekin+epot
