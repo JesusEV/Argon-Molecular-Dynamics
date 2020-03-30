@@ -36,6 +36,6 @@ clean:
 	rm -f $(EXE_DIR)/* *.o *.mod *.png *.dat *.6  *~
 
 flush: clean
-	rm -f $(RESULTS_DIR)/*.dat
+	rm -f $(RESULTS_DIR)/*.dat $(RESULTS_DIR)/*.xyz
 	rm -f $(DATA_ANA_DIR)/*.dat $(DATA_ANA_DIR)/*.pdf
 
