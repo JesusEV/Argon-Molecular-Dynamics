@@ -77,11 +77,27 @@ The source code is composed by the following files:
 - **output routine (output):** Writes simulation data into files.
 - **output temps routine (output_temps):** writes temperature data only.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Logic Flow of the code
 
 The logic flow of the implementation is represented graphically in the following flow chart:
 
-![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/MD_AR.jpg)
+![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/images/MD_AR.jpg)
 
 
 
@@ -184,6 +200,24 @@ $ make flush
 
 ## Results
 
+### Energy vs time and Temperature vs time
+
+![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/images/E_vs_t.jpg)
+
+
+
+![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/images/T_vs_t.jpg)
+
+Notice that the periodic jumps in the temperature vs time plot. The frequency of the jumps (50 fs) corresponds with the frequency in which our thermostat pumps kinetic energy into the system.
+
+### Distribution on velocities
+
+A histograms of velocities is prepared. The red curve in the following plot corresponds to the theoretical result for a temperature $T=94.4 \hspace{1mm} K$ . It is computed as:
+$$
+f(v) = 4\pi \left(\frac{m}{2\pi k_BT}\right)^{\frac{3}{2}}v^2 e^{\frac{-mv^2}{2k_BT}}
+$$
+![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/images/vels_dist.jpg)
+
 ### Pair Correlation Function
 
 The pair correlation function or radial distribution function is given by:
@@ -198,5 +232,14 @@ $4 \pi r^2  \delta r$: Shell volume.
 
 $\rho$: total particle density 
 
- ![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/rdf.jpg)
+ 
 
+![](/home/jesus/Documents/Diploma/Courses/II_Numerical_Methods/Exam/Ar_MD/documents/images/rdf10.png)
+
+This result matches very nicely the Rahman results.
+
+### Animation
+
+A cool video of this simulation using VMD software can be found here:
+
+https://youtu.be/M-hA6Vg5Mno

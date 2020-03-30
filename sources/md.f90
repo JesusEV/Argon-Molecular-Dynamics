@@ -1,10 +1,10 @@
 !------------------------------------------------------------------------------
-!        PROGRAM Molecular Dynamics of Argon`
+!        PROGRAM Molecular Dynamics Liquid Argon`
 !------------------------------------------------------------------------------
 ! Program        : MD
 !
 ! DESCRIPTION:
-!> This program simulates Argon gas subject to the Lennard-Jones potential 
+!> This program simulates Argon Liquid subject to the Lennard-Jones potential 
 !> in a box .
 !------------------------------------------------------------------------------
 PROGRAM MD
@@ -21,9 +21,10 @@ PROGRAM MD
 !------------------------------------------------------------------------------  
     INTEGER :: nprint, i
     CHARACTER(len=sln) :: trajfile = './results/positions.xyz'
-    CHARACTER(len=sln) :: ergfile = './results/energies.dat'
+    CHARACTER(len=sln) :: enefile = './results/energies.dat'
     CHARACTER(len=sln) :: distfile = './results/distances.dat'
     CHARACTER(len=sln) :: tempsfile = './results/temps.dat'
+    CHARACTER(len=sln) :: sqvelsfile = './results/sq_velocities.dat'
 
     READ(stdin,*) natoms
     READ(stdin,*) mass
@@ -45,7 +46,8 @@ PROGRAM MD
     ALLOCATE(rx(natoms),ry(natoms),rz(natoms),&
              vx(natoms),vy(natoms),vz(natoms), &
              fx(natoms),fy(natoms),fz(natoms),&
-             dists(pair_num),temp_series(nsteps))
+             dists(pair_num),temp_series(nsteps),&
+             vel_series(nsteps*natoms))
 
 
 !------------------------------------------------------------------------------
@@ -59,7 +61,7 @@ PROGRAM MD
 !------------------------------------------------------------------------------
 ! Files Openning.
 !------------------------------------------------------------------------------  
-    CALL ioopen(ergfile, trajfile, distfile, tempsfile)
+    CALL ioopen(enefile, trajfile, distfile, tempsfile, sqvelsfile)
 
 
 
@@ -85,7 +87,7 @@ PROGRAM MD
         END IF
     END DO
 
-    CALL output_temps
+    CALL output_temps_and_vels
 
 
 !------------------------------------------------------------------------------
@@ -93,6 +95,6 @@ PROGRAM MD
 !------------------------------------------------------------------------------  
     WRITE(stdout,'(A)') 'Simulation Done.'
     CALL ioclose
-    DEALLOCATE(rx,ry,rz,vx,vy,vz,fx,fy,fz,dists,temp_series)
+    DEALLOCATE(rx,ry,rz,vx,vy,vz,fx,fy,fz,dists,temp_series, vel_series)
 
 END PROGRAM MD

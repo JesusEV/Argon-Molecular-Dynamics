@@ -25,7 +25,8 @@ run: default
 	$(EXE) < $(INPUT)
 
 analyze:
-	ln -s $(RESULTS_DIR)/*dat $(DATA_ANA_DIR)/
+	ln -s $(RESULTS_DIR)/*.dat $(DATA_ANA_DIR)/
+	ln -s $(RESULTS_DIR)/*.xyz $(DATA_ANA_DIR)/
 	python $(ANLYSIS_SCRIPT)
 
 parsing:
@@ -37,5 +38,5 @@ clean:
 
 flush: clean
 	rm -f $(RESULTS_DIR)/*.dat $(RESULTS_DIR)/*.xyz
-	rm -f $(DATA_ANA_DIR)/*.dat $(DATA_ANA_DIR)/*.pdf
+	rm -f $(DATA_ANA_DIR)/*.dat $(DATA_ANA_DIR)/*.xyz
 

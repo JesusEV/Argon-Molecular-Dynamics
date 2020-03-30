@@ -35,12 +35,13 @@ MODULE mdsys
     INTEGER :: natoms, MD_step,nsteps, thermUpdate
     INTEGER :: pair_num, tracking_size = 10
     REAL(kind=dbl) dt, mass, epsilon, sigma, box, rcut
-    REAL(kind=dbl) ekin, epot, temp, res_temp
+    REAL(kind=dbl) sq_vel, ekin, epot, temp, res_temp
     REAL(kind=dbl), POINTER, DIMENSION (:) :: rx, ry, rz
     REAL(kind=dbl), POINTER, DIMENSION (:) :: vx, vy, vz
     REAL(kind=dbl), POINTER, DIMENSION (:) :: fx, fy, fz
     REAL(kind=dbl), POINTER, DIMENSION (:) :: dists
     REAL(kind=dbl), POINTER, DIMENSION (:) :: temp_series
+    REAL(kind=dbl), POINTER, DIMENSION (:) :: vel_series
 END MODULE mdsys
 
 
@@ -74,7 +75,9 @@ MODULE physics
         INTEGER :: i
         ekin = 0.0_dbl
         DO i=1, natoms
-            ekin = ekin + 0.5_dbl * mvsq2e * mass * (vx(i)*vx(i) + vy(i)*vy(i) + vz(i)*vz(i))
+            sq_vel = (vx(i)*vx(i) + vy(i)*vy(i) + vz(i)*vz(i))
+            vel_series((MD_step-1)*natoms+i) = sq_vel
+            ekin = ekin + 0.5_dbl * mvsq2e * mass * sq_vel
         END DO
     END SUBROUTINE getekin
 

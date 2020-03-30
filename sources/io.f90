@@ -14,9 +14,10 @@ MODULE io
     IMPLICIT NONE
     
     PRIVATE 
-    INTEGER, PARAMETER :: stdin=5, stdout=6, log=30, xyz=31, dis=32, tem=33
+    INTEGER, PARAMETER :: stdin=5, stdout=6, ene=30, xyz=31, dis=32,&
+                          tem=33, vel=34
     
-    PUBLIC :: ioopen, ioclose, output, output_temps, stdin, stdout
+    PUBLIC :: ioopen, ioclose, output, output_temps_and_vels, stdin, stdout
 
     CONTAINS
 
@@ -24,12 +25,13 @@ MODULE io
 !> ioopen routine. Opens all the needed files.
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
-    SUBROUTINE ioopen(logname, xyzname, disname,temname)
-        CHARACTER(LEN=sln) :: logname, xyzname, disname, temname
-        OPEN(UNIT=log, FILE=TRIM(logname), STATUS='UNKNOWN', FORM='FORMATTED')
+    SUBROUTINE ioopen(enename, xyzname, disname,temname, velname)
+        CHARACTER(LEN=sln) :: enename, xyzname, disname, temname, velname
+        OPEN(UNIT=ene, FILE=TRIM(enename), STATUS='UNKNOWN', FORM='FORMATTED')
         OPEN(UNIT=xyz, FILE=TRIM(xyzname), STATUS='UNKNOWN', FORM='FORMATTED')
         OPEN(UNIT=dis, FILE=TRIM(disname), STATUS='UNKNOWN', FORM='FORMATTED')
         OPEN(UNIT=tem, FILE=TRIM(temname), STATUS='UNKNOWN', FORM='FORMATTED')
+        OPEN(UNIT=vel, FILE=TRIM(velname), STATUS='UNKNOWN', FORM='FORMATTED')
     END SUBROUTINE ioopen
 
 
@@ -39,10 +41,11 @@ MODULE io
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
     SUBROUTINE ioclose
-        CLOSE(UNIT=log)
+        CLOSE(UNIT=ene)
         CLOSE(UNIT=xyz)
         CLOSE(UNIT=dis)
         CLOSE(UNIT=tem)
+        CLOSE(UNIT=vel)
     END SUBROUTINE ioclose
 
 
@@ -53,14 +56,15 @@ MODULE io
 !---------------------------------------------------------------------------
     SUBROUTINE output
         INTEGER :: i
+        character(len=23) :: str
 
-        WRITE(log, '(I8,1X,F20.8,1X,F20.8,1X,F20.8,1X,F20.8)') &
-             MD_step, temp, ekin, epot, ekin+epot
         WRITE(stdout, '(I8,1X,F20.8,1X,F20.8,1X,F20.8,1X,F20.8)') &
              MD_step, temp, ekin, epot, ekin+epot
-        ! WRITE(xyz, '(I8)') natoms
+
+
+        WRITE(ene, '(F015.8)') ekin+epot
+
         WRITE(xyz, *)
-        ! WRITE(xyz, '(A,I8,1X,A,F20.8)') 'MD_step=', MD_step, 'etot=', ekin+epot
         WRITE(xyz, '(I8)')  natoms
 
         DO i=1, natoms
@@ -80,7 +84,7 @@ MODULE io
 !> output temps routine. writes temperature data only.
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
-    SUBROUTINE output_temps
+    SUBROUTINE output_temps_and_vels
         INTEGER :: i
         character(len=23) :: str
 
@@ -88,6 +92,12 @@ MODULE io
             WRITE(str, '(F012.8)') temp_series(i)
             WRITE(tem,'(a)') adjustl(trim(str))    
         END DO
-    END SUBROUTINE output_temps
+
+        DO i=1, nsteps*natoms
+            WRITE(str, '(F012.8)') vel_series(i)
+            WRITE(vel,'(a)') adjustl(trim(str))    
+        END DO
+
+    END SUBROUTINE output_temps_and_vels
 
 END MODULE io
