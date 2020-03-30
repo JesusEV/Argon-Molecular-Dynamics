@@ -60,11 +60,12 @@ MODULE io
              MD_step, temp, ekin, epot, ekin+epot
         ! WRITE(xyz, '(I8)') natoms
         WRITE(xyz, *)
-        WRITE(xyz, '(A,I8,1X,A,F20.8)') 'MD_step=', MD_step, 'etot=', ekin+epot
+        ! WRITE(xyz, '(A,I8,1X,A,F20.8)') 'MD_step=', MD_step, 'etot=', ekin+epot
+        WRITE(xyz, '(I8)')  natoms
 
         DO i=1, natoms
-            WRITE(xyz, '(A2,I0.3, 3(1X,F012.8))') &
-                'Ar', i, rx(i), ry(i), rz(i)
+            WRITE(xyz, '(A2, 3(1X,F012.8))') &
+                'Ar', rx(i), ry(i), rz(i)
         END DO
 
         DO i=1, pair_num

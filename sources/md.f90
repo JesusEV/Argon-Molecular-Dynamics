@@ -20,7 +20,7 @@ PROGRAM MD
 ! Reading and Initialization of simulation parameters.  
 !------------------------------------------------------------------------------  
     INTEGER :: nprint, i
-    CHARACTER(len=sln) :: trajfile = './results/positions.dat'
+    CHARACTER(len=sln) :: trajfile = './results/positions.xyz'
     CHARACTER(len=sln) :: ergfile = './results/energies.dat'
     CHARACTER(len=sln) :: distfile = './results/distances.dat'
     CHARACTER(len=sln) :: tempsfile = './results/temps.dat'
