@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------
 MODULE io
     USE kinds
-    USE mdsys
+    USE MD_system
     
     IMPLICIT NONE
     
@@ -64,9 +64,9 @@ MODULE io
         WRITE(ene, '(F015.8)') ekin+epot
 
         WRITE(xyz, *)
-        WRITE(xyz, '(I8)')  natoms
+        WRITE(xyz, '(I8)')  N
 
-        DO i=1, natoms
+        DO i=1, N
             WRITE(xyz, '(A2, 3(1X,F012.8))') &
                 'Ar', rx(i), ry(i), rz(i)
         END DO
@@ -87,12 +87,12 @@ MODULE io
         INTEGER :: i
         character(len=23) :: str
 
-        DO i=1, nsteps
+        DO i=1, MD_steps
             WRITE(str, '(F012.8)') temp_series(i)
             WRITE(tem,'(a)') adjustl(trim(str))    
         END DO
 
-        DO i=1, nsteps*natoms
+        DO i=1, MD_steps*N
             WRITE(str, '(F012.8)') vel_series(i)
             WRITE(vel,'(a)') adjustl(trim(str))    
         END DO

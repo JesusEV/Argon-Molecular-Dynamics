@@ -1,20 +1,20 @@
 !------------------------------------------------------------------------------
 !        MODULE Physical Constants`
 !------------------------------------------------------------------------------
-! MODULE        : physconst
+! MODULE        : Phys_consts
 !
 ! DESCRIPTION:
 !> This module holds the needed physical constants used in the simulation.
 !------------------------------------------------------------------------------
-MODULE physconst
+MODULE Phys_consts
     USE kinds
     IMPLICIT NONE
-    REAL(kind=dbl), PARAMETER :: kboltz =    0.0019872067_dbl   ! boltzman constant in kcal/mol/K
-    REAL(kind=dbl), PARAMETER :: mvsq2e = 2390.05736153349_dbl  ! m*v^2 in kcal/mol
-    REAL(kind=dbl), PARAMETER :: onesigmavel = 0.001765695_dbl  ! kb T/M in kcal/mol
+    REAL(kind=dbl), PARAMETER :: kb =    0.0019872067_dbl       ! kb [kcal k/mol]
+    REAL(kind=dbl), PARAMETER :: mv2convfac = 2390.05736153349_dbl  ! mv^2 [kcal / mol]
+    REAL(kind=dbl), PARAMETER :: onesigmavel = 0.001765695_dbl  ! vel one sigma [T kb/M]
     PRIVATE
-    PUBLIC :: kboltz, mvsq2e, onesigmavel
-END MODULE physconst
+    PUBLIC :: kb, mv2convfac, onesigmavel
+END MODULE Phys_consts
 
 
 
@@ -24,17 +24,17 @@ END MODULE physconst
 !------------------------------------------------------------------------------
 !        MODULE Molecular Dynamics System`
 !------------------------------------------------------------------------------
-! MODULE        : mdsys
+! MODULE        : MD_system
 !
 ! DESCRIPTION:
 !> This module holds the complete system information.
 !------------------------------------------------------------------------------
-MODULE mdsys
+MODULE MD_system
     USE kinds
     IMPLICIT NONE
-    INTEGER :: natoms, MD_step,nsteps, thermUpdate
+    INTEGER :: N, MD_step,MD_steps, thermUpdate
     INTEGER :: pair_num, tracking_size = 10
-    REAL(kind=dbl) dt, mass, epsilon, sigma, box, rcut
+    REAL(kind=dbl) dt, M, epsilon, sigma, L, r_cut
     REAL(kind=dbl) sq_vel, ekin, epot, temp, res_temp
     REAL(kind=dbl), POINTER, DIMENSION (:) :: rx, ry, rz
     REAL(kind=dbl), POINTER, DIMENSION (:) :: vx, vy, vz
@@ -42,7 +42,7 @@ MODULE mdsys
     REAL(kind=dbl), POINTER, DIMENSION (:) :: dists
     REAL(kind=dbl), POINTER, DIMENSION (:) :: temp_series
     REAL(kind=dbl), POINTER, DIMENSION (:) :: vel_series
-END MODULE mdsys
+END MODULE MD_system
 
 
 
@@ -60,8 +60,8 @@ MODULE physics
 
     USE utils
     USE kinds
-    USE mdsys
-    USE physconst
+    USE MD_system
+    USE Phys_consts
 
     IMPLICIT NONE
 
@@ -74,10 +74,10 @@ MODULE physics
     SUBROUTINE getekin
         INTEGER :: i
         ekin = 0.0_dbl
-        DO i=1, natoms
+        DO i=1, N
             sq_vel = (vx(i)*vx(i) + vy(i)*vy(i) + vz(i)*vz(i))
-            vel_series((MD_step-1)*natoms+i) = sq_vel
-            ekin = ekin + 0.5_dbl * mvsq2e * mass * sq_vel
+            vel_series((MD_step-1)*N+i) = sq_vel
+            ekin = ekin + 0.5_dbl * mv2convfac * M * sq_vel
         END DO
     END SUBROUTINE getekin
 
@@ -88,7 +88,7 @@ MODULE physics
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
     SUBROUTINE gettemp
-        temp = 2.0_dbl * ekin/(3.0_dbl*DBLE(natoms-1))/kboltz
+        temp = 2.0_dbl * ekin/(3.0_dbl*DBLE(N-1))/kb
         temp_series(MD_step) = temp
     END SUBROUTINE gettemp
 
@@ -99,39 +99,39 @@ MODULE physics
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
     SUBROUTINE force
-        REAL(kind=dbl) :: r_sq, ffac, dx, dy, dz
-        REAL(kind=dbl) :: rcutsq, r6, c6, c12, rinv
+        REAL(kind=dbl) :: r_sq, forcefac, dx, dy, dz
+        REAL(kind=dbl) :: r_cutsq, r6, ljconstc6, ljconst12, rinv2
         INTEGER :: i, j
 
         epot=0.0_dbl
         CALL force_to_zero
 
-        rcutsq=rcut*rcut
-        c12 = 4.0_dbl*epsilon*sigma**12
-        c6  = 4.0_dbl*epsilon*sigma**6
+        r_cutsq=r_cut*r_cut
+        ljconst12 = 4.0_dbl*epsilon*sigma**12
+        ljconstc6  = 4.0_dbl*epsilon*sigma**6
 
-        DO i=1, natoms-1
-             DO j=i+1, natoms
+        DO i=1, N-1
+             DO j=i+1, N
                     
-                dx=pbc(rx(i) - rx(j), box)
-                dy=pbc(ry(i) - ry(j), box)
-                dz=pbc(rz(i) - rz(j), box)
+                dx=pbc(rx(i) - rx(j), L)
+                dy=pbc(ry(i) - ry(j), L)
+                dz=pbc(rz(i) - rz(j), L)
                 r_sq = dx*dx + dy*dy + dz*dz
 
                 ! compute force and energy if within cutoff */
-                IF (r_sq < rcutsq) THEN
-                   rinv = 1.0_dbl/r_sq
-                   r6 = rinv*rinv*rinv
-                   ffac = (12.0_dbl*c12*r6 - 6.0_dbl*c6)*r6*rinv
-                   epot = epot + r6*(c12*r6 - c6)
+                IF (r_sq < r_cutsq) THEN
+                   rinv2 = 1.0_dbl/r_sq
+                   r6 = rinv2*rinv2*rinv2
+                   forcefac = (12.0_dbl*ljconst12*r6 - 6.0_dbl*ljconstc6)*r6*rinv2
+                   epot = epot + r6*(ljconst12*r6 - ljconstc6)
 
-                    fx(i) = fx(i) + dx*ffac
-                    fy(i) = fy(i) + dy*ffac
-                    fz(i) = fz(i) + dz*ffac
+                    fx(i) = fx(i) + dx*forcefac
+                    fy(i) = fy(i) + dy*forcefac
+                    fz(i) = fz(i) + dz*forcefac
 
-                    fx(j) = fx(j) - dx*ffac
-                    fy(j) = fy(j) - dy*ffac
-                    fz(j) = fz(j) - dz*ffac
+                    fx(j) = fx(j) - dx*forcefac
+                    fy(j) = fy(j) - dy*forcefac
+                    fz(j) = fz(j) - dz*forcefac
                 END IF
              END DO
         END DO
@@ -147,10 +147,10 @@ MODULE physics
         INTEGER :: i
 
         ! first part: propagate velocities by half and positions by full step
-        DO i=1, natoms
-            vx(i) = vx(i) + 0.5_dbl * dt / mvsq2e * fx(i) / mass
-            vy(i) = vy(i) + 0.5_dbl * dt / mvsq2e * fy(i) / mass
-            vz(i) = vz(i) + 0.5_dbl * dt / mvsq2e * fz(i) / mass
+        DO i=1, N
+            vx(i) = vx(i) + 0.5_dbl * dt * fx(i) / (mv2convfac  * M)
+            vy(i) = vy(i) + 0.5_dbl * dt * fy(i) / (mv2convfac  * M)
+            vz(i) = vz(i) + 0.5_dbl * dt * fz(i) / (mv2convfac  * M)
             rx(i) = rx(i) + dt*vx(i)
             ry(i) = ry(i) + dt*vy(i)
             rz(i) = rz(i) + dt*vz(i)
@@ -160,10 +160,10 @@ MODULE physics
         CALL force
 
         ! second part: propagate velocities by another half step */
-        DO i=1, natoms
-            vx(i) = vx(i) + 0.5_dbl * dt / mvsq2e * fx(i) / mass
-            vy(i) = vy(i) + 0.5_dbl * dt / mvsq2e * fy(i) / mass
-            vz(i) = vz(i) + 0.5_dbl * dt / mvsq2e * fz(i) / mass
+        DO i=1, N
+            vx(i) = vx(i) + 0.5_dbl * dt * fx(i) / (mv2convfac  * M)
+            vy(i) = vy(i) + 0.5_dbl * dt * fy(i) / (mv2convfac  * M)
+            vz(i) = vz(i) + 0.5_dbl * dt * fz(i) / (mv2convfac  * M)
         END DO
     END SUBROUTINE velverlet
 
@@ -175,13 +175,13 @@ MODULE physics
 !---------------------------------------------------------------------------
     SUBROUTINE thermostat
         USE kinds
-        USE mdsys
-        USE physconst
+        USE MD_system
+        USE Phys_consts
         IMPLICIT NONE
 
         INTEGER :: i
 
-        DO i=1, natoms
+        DO i=1, N
             vx(i) = vx(i)*sqrt(res_temp/temp)
             vy(i) = vy(i)*sqrt(res_temp/temp)
             vz(i) = vz(i)*sqrt(res_temp/temp)
@@ -198,7 +198,7 @@ MODULE physics
     SUBROUTINE MaxBoltz_Dist_vel_init
         INTEGER :: i
 
-        DO i=1, natoms
+        DO i=1, N
             vx(i) = box_muller_method(onesigmavel,0.0_dbl)
             vy(i) = box_muller_method(onesigmavel,0.0_dbl)
             vz(i) = box_muller_method(onesigmavel,0.0_dbl)
@@ -217,9 +217,9 @@ MODULE physics
         INTEGER :: lattice_size, cells_num, cbrt_cells, cell_idx = 1
         REAL(kind=dbl) :: lattice_spacing
 
-        cells_num = natoms/4
+        cells_num = N/4
         cbrt_cells = INT(cells_num**(1.0/3))
-        lattice_spacing = box/cbrt_cells
+        lattice_spacing = L/cbrt_cells
 
         DO i=1, cbrt_cells
             DO j=1, cbrt_cells
@@ -255,7 +255,7 @@ MODULE physics
     SUBROUTINE force_to_zero
     INTEGER :: i
 
-    DO i=1, natoms
+    DO i=1, N
        fx(i) = 0.0_dbl
        fy(i) = 0.0_dbl
        fz(i) = 0.0_dbl
@@ -274,10 +274,10 @@ MODULE physics
 
         k = 1
         DO i=1, tracking_size
-            DO j=i+1, natoms
-                dx=pbc(rx(i) - rx(j), box)
-                dy=pbc(ry(i) - ry(j), box)
-                dz=pbc(rz(i) - rz(j), box)
+            DO j=i+1, N
+                dx=pbc(rx(i) - rx(j), L)
+                dy=pbc(ry(i) - ry(j), L)
+                dz=pbc(rz(i) - rz(j), L)
                 dists(k) = SQRT(dx*dx + dy*dy + dz*dz)
                 k=k+1
             END DO

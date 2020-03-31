@@ -41,10 +41,10 @@ MODULE utils
 !> pbc routine: applies minimum image convention.
 !> @param[in] casefilename
 !---------------------------------------------------------------------------
-    FUNCTION pbc(x, box)
-        REAL(kind=dbl), INTENT(IN)  :: x, box
+    FUNCTION pbc(x, L)
+        REAL(kind=dbl), INTENT(IN)  :: x, L
         REAL(kind=dbl) :: pbc
-        pbc = x - box*(ANINT(x/box))
+        pbc = x - L*(ANINT(x/L))
     END FUNCTION pbc
 
 

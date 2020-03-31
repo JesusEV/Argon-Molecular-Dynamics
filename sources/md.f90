@@ -9,10 +9,10 @@
 !------------------------------------------------------------------------------
 PROGRAM MD
     USE kinds
-    USE io
     USE utils
-    USE mdsys
+    USE MD_system
     USE physics
+    USE io
     IMPLICIT NONE
 
 
@@ -26,28 +26,28 @@ PROGRAM MD
     CHARACTER(len=sln) :: tempsfile = './results/temps.dat'
     CHARACTER(len=sln) :: sqvelsfile = './results/sq_velocities.dat'
 
-    READ(stdin,*) natoms
-    READ(stdin,*) mass
+    READ(stdin,*) N
+    READ(stdin,*) M
     READ(stdin,*) epsilon
     READ(stdin,*) sigma
-    READ(stdin,*) rcut
-    READ(stdin,*) box
-    READ(stdin,*) nsteps
+    READ(stdin,*) r_cut
+    READ(stdin,*) L
+    READ(stdin,*) MD_steps
     READ(stdin,*) dt
     READ(stdin,*) nprint
     READ(stdin,*) res_temp
     READ(stdin,*) thermUpdate
-    pair_num = (natoms*(natoms - 1)-(natoms-tracking_size)*(natoms -tracking_size- 1))/2
+    pair_num = (N*(N - 1)-(N-tracking_size)*(N -tracking_size- 1))/2
 
 
 !------------------------------------------------------------------------------
 ! Allocation of storage for simulation data.
 !------------------------------------------------------------------------------  
-    ALLOCATE(rx(natoms),ry(natoms),rz(natoms),&
-             vx(natoms),vy(natoms),vz(natoms), &
-             fx(natoms),fy(natoms),fz(natoms),&
-             dists(pair_num),temp_series(nsteps),&
-             vel_series(nsteps*natoms))
+    ALLOCATE(rx(N),ry(N),rz(N),&
+             vx(N),vy(N),vz(N), &
+             fx(N),fy(N),fz(N),&
+             dists(pair_num),temp_series(MD_steps),&
+             vel_series(MD_steps*N))
 
 
 !------------------------------------------------------------------------------
@@ -69,16 +69,16 @@ PROGRAM MD
 ! Molecular Dyanamic Main loop.
 !------------------------------------------------------------------------------  
     WRITE(stdout, *) 'MD_step'
-    DO MD_step=1, nsteps
+    DO MD_step=1, MD_steps
 
-        ! propagate system and recompute energies
+        ! Integrate and compute energies and temperature
         CALL velverlet
         CALL getekin
         CALL gettemp
 
         IF (MOD(MD_step, thermUpdate) == 0 ) CALL thermostat
 
-        ! write output, if requested
+        ! write output
         IF (mod(MD_step,nprint) == 0) THEN
              CALL get_distances
              CALL output
@@ -91,7 +91,7 @@ PROGRAM MD
 !------------------------------------------------------------------------------
 ! clean up: close files, free memory
 !------------------------------------------------------------------------------  
-    WRITE(stdout,'(A)') 'Simulation Done.'
+    WRITE(stdout,'(A)') 'Simulation Completed.'
     CALL ioclose
     DEALLOCATE(rx,ry,rz,vx,vy,vz,fx,fy,fz,dists,temp_series, vel_series)
 
